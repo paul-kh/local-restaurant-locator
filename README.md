@@ -1,12 +1,5 @@
 # TeamAwesome
 
-Live link: https://owodu001.github.io/TeamAwesome/
-
-Title
-Restaurant/Weather App
-
-# TeamAwesome
-
 ## Live link: https://owodu001.github.io/TeamAwesome/
 
 
