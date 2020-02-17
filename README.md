@@ -1,6 +1,6 @@
 # TeamAwesome
 
-## Live link: https://owodu001.github.io/TeamAwesome/
+## Live link: https://paul-kh.github.io/restaurant-locator/
 
 
 ## Title: Restaurant Locator
