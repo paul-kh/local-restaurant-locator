@@ -4,6 +4,7 @@ let latitude = "";
 let longitude = "";
 // Define global variable for search input element
 const userInputEl = document.getElementById("search-term");
+userInputEl.focus();
 // Define global variable for search button element
 const searchBtnEl = document.getElementById("search-btn");
 // MAKE AUTOCOMPLETE ON SEARCH BOX AND GET LATITUDE & LONGITUDE OF THE SELECTED LOCATION ================================================
@@ -100,7 +101,7 @@ function getCurWeather() {
         method: 'GET'
     }).then(function (response) {
 
-console.log("Weather data: ", response);
+        console.log("Weather data: ", response);
         weatherObj = {
             city: `${response.name}`,
             wind: response.wind.speed,
@@ -166,7 +167,7 @@ function displayresto() {
         "async": true,
         "crossDomain": true,
         "url": "https://developers.zomato.com/api/v2.1/search?lat=" +
-            latitude + "&lon=" + longitude + "&count=100&sort=real_distance&order=asc", 
+            latitude + "&lon=" + longitude + "&count=100&sort=real_distance&order=asc",
         "method": "GET", // use Get method
         "headers": {
             "user-key": "91ed3953ab67d3bc31054f6a0ee5a372",
@@ -186,12 +187,12 @@ function displayresto() {
             console.log("Resto data: ", restoObj);
             $.each(restoObj, function (index, value) {
                 // Show only restaurant that has picture
-                if (value.thumb != ""){
+                if (value.thumb != "") {
                     let location = restoObj.restaurant.location;
                     let userRating = restoObj.restaurant.user_rating;
                     html += "<div class='data is-clearfix '>";
                     html += "<div class='rating '>";
-               
+
                     html += "<span class=' is-pulled-right title='" + userRating.rating_text + "'><p style='color:white;background-color:#" + userRating.rating_color + ";border-radius:4px;border:none; margin-left: 15px; padding: 10px  ;text-align: center;text-decoration:none;display:inline-block;font-size:16px;'><strong>" + userRating.aggregate_rating + "</strong></p></span><br>";
                     html += "  <strong  class='is-pulled-right has-text-info'>" + userRating.votes + " votes</strong>";
                     html += "</div>";
