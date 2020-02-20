@@ -1,12 +1,12 @@
 // GLOBAL VARIABLES =====================================================================================================================
 let latitude = "";
 let longitude = "";
-const searchBtnEl = document.getElementById("search-btn");
-const userInputEl = document.getElementById("search-term");
-userInputEl.focus();
+const restoLocatorSearchBtnEl = document.getElementById("search-btn");
+const restoLocatorSearchInputEl = document.getElementById("search-term");
+restoLocatorSearchInputEl.focus();
 
 // EXECUTE autoComplete() & getCurrentLocation() WHEN PAGE LOADS =====================================================================
-autoComplete(userInputEl);
+autoComplete(restoLocatorSearchInputEl);
 getCurrentLocation();
 
 // MAKE AUTOCOMPLETE ON SEARCH BOX AND GET LATITUDE & LONGITUDE OF THE SELECTED LOCATION ================================================
@@ -21,7 +21,7 @@ function autoComplete(inputEl) {
         const selectedPlace = places.getPlace();
         autoComCoord.lat = selectedPlace.geometry.location.lat();
         autoComCoord.lon = selectedPlace.geometry.location.lng();
-        displayresto(autoComCoord, "");
+        // displayresto(autoComCoord);
         getCurWeather(autoComCoord, "");
     });
 }
@@ -35,7 +35,7 @@ function getCurrentLocation() {
             getCurLocCoord.lat = position.coords.latitude;
             getCurLocCoord.lon = position.coords.longitude;
             console.log("getCurLocCoord: ", getCurLocCoord);
-            displayresto(getCurLocCoord, "");
+            // displayresto(getCurLocCoord);
             getCurWeather(getCurLocCoord, "");
         }, function (error) { // Handle error
             switch (error.code) {
@@ -55,47 +55,15 @@ function getCurrentLocation() {
     } else { return; }
 }
 
-// function search(autCompleteCoord, userCurLocCoord, searchTerm) {
-
-//     if (userCurLocCoord !== null) {
-//         // getWeather based on getCurLocCoord;
-
-//         // getCuisine based on getCurLocCoord;
-//         return
-//     }
-
-//     if (autCompleteCoord !== null) {
-//         //getWeather based on autoComCoord;
-//         getCurWeather(autCompleteCoord, "");
-//         //getCuisine based on autoComCoord;
-//         displayresto(autCompleteCoord, "");
-//         return
-//     }
-//     // if (searchTerm !== "") {
-//     //     getSearchMethod();
-//     //     if (method === zip) {
-//     //         getWeather based on zip;
-//     //         getCuisine based on zip;
-//     //     }
-//     //     if (method === 'query string') {
-//     //         getWeather based on queryString;
-//     //         getCuisine based on queryString;
-//     //     }
-//     //     return
-//     // }
-// }
-
-
-
 // ADD CLICK EVENT TO THE SEARCH BUTTON ==============================================================================================
-// searchBtnEl.addEventListener("click", function (event) {
-//     event.preventDefault();
-//     // Check if global latitude and longitude have been changed with new values
-//     console.log("User selected lat: ", latitude, " lng: ", longitude);
-//     getCurWeather();
-//     displayresto();
+restoLocatorSearchBtnEl.addEventListener("click", function (event) {
+    event.preventDefault();
+    const searchTerm = restoLocatorSearchInputEl.value;
+    // Check if global latitude and longitude have been changed with new values
+    getCurWeather(null, searchTerm);
+    // displayresto(null, searchTerm);
 
-// });
+});
 
 function convertDate(epoch) {
     // function to convert unix epoch to local time
@@ -113,10 +81,20 @@ function convertDate(epoch) {
 
     return readable;
 }
+
+function getSearchMethod(searchStr) {
+    let searchMethod;
+    if (searchStr.length === 5 && parseInt(searchStr) + '' === searchStr) {
+        searchMethod = 'zip';
+    } else {
+        searchMethod = 'q';
+    }
+
+    return searchMethod;
+}
+
 function getCurWeather(coord, searchTerm) {
-
     const apiKey = "166a433c57516f51dfab1f7edaed8413";
-
     let queryURL = "";
     // query based on coordinates: lat and lon
     if (searchTerm === "" && coord !== null) {
@@ -124,8 +102,8 @@ function getCurWeather(coord, searchTerm) {
     }
     // query based on zip or city name
     else if (searchTerm !== "") {
-        // check for search method if zip or city name
-        // update queryURL accordingly
+        queryURL = `https://api.openweathermap.org/data/2.5/weather?${getSearchMethod(searchTerm)}=${searchTerm}&units=imperial&appid=${apiKey}`;
+        console.log("Search Method: ", getSearchMethod(searchTerm));
     }
     console.log("queryURL: ", queryURL);
     // Create an AJAX call to retrieve data Log the data in console
@@ -135,6 +113,8 @@ function getCurWeather(coord, searchTerm) {
     })
         .then(function (response) {
             console.log("Weather data: ", response);
+            console.log("Weather Coord data: ", response.coord);
+            displayresto(response.coord);
             weatherObj = {
                 city: `${response.name}`,
                 wind: response.wind.speed,
@@ -193,19 +173,10 @@ function drawCurWeather(cur) {
 
 };
 
-//  Create a function to display the restaurant based on city
-function displayresto(coord, searchTerm) {
-    // Define an object 'settings' to store query url to API server
-    let queryURL = "";
-    // query based on coordinates: lat and lon
-    if (searchTerm === "" && coord !== null) {
-        queryURL = `https://developers.zomato.com/api/v2.1/search?lat=${coord.lat}&lon=${coord.lon}&count=100&sort=real_distance&order=asc`;
-    }
-    // query based on zip or city name
-    else if (searchTerm !== "") {
-        // check for search method if zip or city name
-        // update queryURL accordingly
-    }
+// Function that pulls resto data from Zomato API based on the coordinates
+// This function gets called by the getCurWeather() function so it cang get coordinates from Open Weather API
+function displayresto(coord) {
+    const queryURL = `https://developers.zomato.com/api/v2.1/search?lat=${coord.lat}&lon=${coord.lon}&count=100&sort=real_distance&order=asc`;
     console.log("Resto queryURL: ", queryURL);
 
     let settings = {
@@ -217,7 +188,7 @@ function displayresto(coord, searchTerm) {
             "user-key": "91ed3953ab67d3bc31054f6a0ee5a372",
             'Content-Type': 'application/x-www-form-urlencoded' // Return in JSON format
         }
-    }// end of defining object 'settings'
+    }
     $.getJSON(settings, function (datares) { // make a request to API server
         console.log(datares);
         datares = datares.restaurants;
@@ -227,8 +198,6 @@ function displayresto(coord, searchTerm) {
         $.each(datares, function (index, value) {
             // define an object to store resto data
             let restoObj = datares[index];
-            console.log(typeof restoObj);
-            console.log("Resto data: ", restoObj);
             $.each(restoObj, function (index, value) {
                 // Show only restaurant that has picture
                 if (value.thumb != "") {
