@@ -71,7 +71,8 @@ function getCurrentLocation() {
                     break;
             }
         });
-    } else { return; }
+    }
+    restoLocatorSearchInputEl.focus();
 }
 
 // Function that converts unix epoch to local time.
