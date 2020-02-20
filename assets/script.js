@@ -7,7 +7,7 @@ userInputEl.focus();
 
 // EXECUTE autoComplete() & getCurrentLocation() WHEN PAGE LOADS =====================================================================
 autoComplete(userInputEl);
-// getCurrentLocation();
+getCurrentLocation();
 
 // MAKE AUTOCOMPLETE ON SEARCH BOX AND GET LATITUDE & LONGITUDE OF THE SELECTED LOCATION ================================================
 function autoComplete(inputEl) {
@@ -27,33 +27,33 @@ function autoComplete(inputEl) {
 }
 
 // GET USER CURRENT LOCATION AND GET THEIR LOCATION'S LATITUDE & LONGITUDE ===============================================================
-// function getCurrentLocation() {
-//     const getCurLocCoord = {};
-//     // If user allowed access to their current location, update the global lat & lng
-//     if (navigator.geolocation) {
-//         navigator.geolocation.getCurrentPosition(function (position) {
-//             getCurLocCoord.lat = position.coords.longitude;
-//             getCurLocCoord.lon = position.coords.longitude;
-//             console.log("getCurLocCoord: ", getCurLocCoord);
-//             displayresto(getCurLocCoord, "");
-//             getCurWeather(getCurLocCoord, "");
-//         }, function (error) { // Handle error
-//             switch (error.code) {
-//                 case error.PERMISSION_DENIED: // User denied the access to their location
-//                     break;
-//                 case error.POSITION_UNAVAILABLE: // Browser doesn't support location service
-//                     alert("Location information is unavailable.");
-//                     break;
-//                 case error.TIMEOUT: // User has not responded to request for access to their location
-//                     alert("The request to get user location timed out.");
-//                     break;
-//                 case error.UNKNOWN_ERROR: // Other unknown error
-//                     alert("An unknown error occurred.");
-//                     break;
-//             }
-//         });
-//     } else { return; }
-// }
+function getCurrentLocation() {
+    const getCurLocCoord = {};
+    // If user allowed access to their current location, update the global lat & lng
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            getCurLocCoord.lat = position.coords.latitude;
+            getCurLocCoord.lon = position.coords.longitude;
+            console.log("getCurLocCoord: ", getCurLocCoord);
+            displayresto(getCurLocCoord, "");
+            getCurWeather(getCurLocCoord, "");
+        }, function (error) { // Handle error
+            switch (error.code) {
+                case error.PERMISSION_DENIED: // User denied the access to their location
+                    break;
+                case error.POSITION_UNAVAILABLE: // Browser doesn't support location service
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT: // User has not responded to request for access to their location
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR: // Other unknown error
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        });
+    } else { return; }
+}
 
 // function search(autCompleteCoord, userCurLocCoord, searchTerm) {
 
@@ -132,23 +132,24 @@ function getCurWeather(coord, searchTerm) {
     $.ajax({
         url: queryURL,
         method: 'GET'
-    }).then(function (response) {
+    })
+        .then(function (response) {
+            console.log("Weather data: ", response);
+            weatherObj = {
+                city: `${response.name}`,
+                wind: response.wind.speed,
+                humidity: response.main.humidity,
+                temp: response.main.temp,
+                date: (convertDate(response.dt))[1],
+                icon: `http://openweathermap.org/img/w/${response.weather[0].icon}.png`,
+                desc: response.weather[0].description
+            }
 
-        console.log("Weather data: ", response);
-        weatherObj = {
-            city: `${response.name}`,
-            wind: response.wind.speed,
-            humidity: response.main.humidity,
-            temp: response.main.temp,
-            date: (convertDate(response.dt))[1],
-            icon: `http://openweathermap.org/img/w/${response.weather[0].icon}.png`,
-            desc: response.weather[0].description
-        }
+            // calls function to draw result to page
+            drawCurWeather(weatherObj);
 
-        // calls function to draw result to page
-        drawCurWeather(weatherObj);
-
-    });
+        })
+        .catch(err => console.log("AJAX Error: ", err));
 };
 
 function drawCurWeather(cur) {
