@@ -21,38 +21,69 @@ function autoComplete(inputEl) {
         const selectedPlace = places.getPlace();
         autoComCoord.lat = selectedPlace.geometry.location.lat();
         autoComCoord.lon = selectedPlace.geometry.location.lng();
-        search(autoComCoord, null, "");
+        displayresto(autoComCoord, "");
+        getCurWeather(autoComCoord, "");
     });
 }
 
-function search(autCompleteCoord, userCurLocCoord, searchTerm) {
+// GET USER CURRENT LOCATION AND GET THEIR LOCATION'S LATITUDE & LONGITUDE ===============================================================
+// function getCurrentLocation() {
+//     const getCurLocCoord = {};
+//     // If user allowed access to their current location, update the global lat & lng
+//     if (navigator.geolocation) {
+//         navigator.geolocation.getCurrentPosition(function (position) {
+//             getCurLocCoord.lat = position.coords.longitude;
+//             getCurLocCoord.lon = position.coords.longitude;
+//             console.log("getCurLocCoord: ", getCurLocCoord);
+//             displayresto(getCurLocCoord, "");
+//             getCurWeather(getCurLocCoord, "");
+//         }, function (error) { // Handle error
+//             switch (error.code) {
+//                 case error.PERMISSION_DENIED: // User denied the access to their location
+//                     break;
+//                 case error.POSITION_UNAVAILABLE: // Browser doesn't support location service
+//                     alert("Location information is unavailable.");
+//                     break;
+//                 case error.TIMEOUT: // User has not responded to request for access to their location
+//                     alert("The request to get user location timed out.");
+//                     break;
+//                 case error.UNKNOWN_ERROR: // Other unknown error
+//                     alert("An unknown error occurred.");
+//                     break;
+//             }
+//         });
+//     } else { return; }
+// }
 
-    // if (userCurLocCoord !== null) {
-    //     getWeather based on getCurLocCoord;
-    //     getCuisine based on getCurLocCoord;
-    //     return
-    // }
+// function search(autCompleteCoord, userCurLocCoord, searchTerm) {
 
-    if (autCompleteCoord !== null) {
-        //getWeather based on autoComCoord;
-        getCurWeather(autCompleteCoord, "");
-        //getCuisine based on autoComCoord;
-        displayresto(autCompleteCoord, "");
-        return
-    }
-    // if (searchTerm !== "") {
-    //     getSearchMethod();
-    //     if (method === zip) {
-    //         getWeather based on zip;
-    //         getCuisine based on zip;
-    //     }
-    //     if (method === 'query string') {
-    //         getWeather based on queryString;
-    //         getCuisine based on queryString;
-    //     }
-    //     return
-    // }
-}
+//     if (userCurLocCoord !== null) {
+//         // getWeather based on getCurLocCoord;
+
+//         // getCuisine based on getCurLocCoord;
+//         return
+//     }
+
+//     if (autCompleteCoord !== null) {
+//         //getWeather based on autoComCoord;
+//         getCurWeather(autCompleteCoord, "");
+//         //getCuisine based on autoComCoord;
+//         displayresto(autCompleteCoord, "");
+//         return
+//     }
+//     // if (searchTerm !== "") {
+//     //     getSearchMethod();
+//     //     if (method === zip) {
+//     //         getWeather based on zip;
+//     //         getCuisine based on zip;
+//     //     }
+//     //     if (method === 'query string') {
+//     //         getWeather based on queryString;
+//     //         getCuisine based on queryString;
+//     //     }
+//     //     return
+//     // }
+// }
 
 
 
@@ -224,38 +255,7 @@ function displayresto(coord, searchTerm) {
 
 /*
 
-// GET USER CURRENT LOCATION AND GET THEIR LOCATION'S LATITUDE & LONGITUDE ===============================================================
-function getCurrentLocation() {
-    const getCurLocCoord = {};
-    // If user allowed access to their current location, update the global lat & lng
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            latitude = position.coords.latitude;
-            longitude = position.coords.longitude;
-            getCurLocCoord.lat = position.coords.longitude;
-            getCurLocCoord.lon = position.coords.longitude;
-            console.log("getCurLocCoord: ", getCurLocCoord);
-            displayresto();
-            getCurWeather();
-        }, function (error) { // Handle error
-            switch (error.code) {
-                case error.PERMISSION_DENIED: // User denied the access to their location
-                    break;
-                case error.POSITION_UNAVAILABLE: // Browser doesn't support location service
-                    alert("Location information is unavailable.");
-                    break;
-                case error.TIMEOUT: // User has not responded to request for access to their location
-                    alert("The request to get user location timed out.");
-                    break;
-                case error.UNKNOWN_ERROR: // Other unknown error
-                    alert("An unknown error occurred.");
-                    break;
-            }
-        });
-    } else { return; }
-    return getCurLocCoord;
 
-}
 
 */
 
