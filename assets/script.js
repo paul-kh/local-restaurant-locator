@@ -1,15 +1,20 @@
-// GLOBAL VARIABLES =====================================================================================================================
-let latitude = "";
-let longitude = "";
 const restoLocatorSearchBtnEl = document.getElementById("search-btn");
 const restoLocatorSearchInputEl = document.getElementById("search-term");
 restoLocatorSearchInputEl.focus();
-// Trigger Button Click on Enter in the search input
+// Trigger Button Click on Enter key press in the search input
 restoLocatorSearchInputEl.addEventListener("keyup", function (event) {
     if (event.keyCode === 13) {
         event.preventDefault();
         restoLocatorSearchBtnEl.click();
     }
+});
+
+// ADD CLICK EVENT TO THE SEARCH BUTTON ==============================================================================================
+restoLocatorSearchBtnEl.addEventListener("click", function (event) {
+    event.preventDefault();
+    const searchTerm = restoLocatorSearchInputEl.value;
+    // Check if global latitude and longitude have been changed with new values
+    getCurWeather(null, searchTerm);
 });
 
 // EXECUTE autoComplete() & getCurrentLocation() WHEN PAGE LOADS =====================================================================
@@ -42,7 +47,7 @@ function getCurrentLocation() {
             getCurLocCoord.lat = position.coords.latitude;
             getCurLocCoord.lon = position.coords.longitude;
             console.log("getCurLocCoord: ", getCurLocCoord);
-            // displayresto(getCurLocCoord);
+            // get weather data from API server based on the coordinates received
             getCurWeather(getCurLocCoord, "");
         }, function (error) { // Handle error
             switch (error.code) {
@@ -62,16 +67,6 @@ function getCurrentLocation() {
     } else { return; }
 }
 
-// ADD CLICK EVENT TO THE SEARCH BUTTON ==============================================================================================
-restoLocatorSearchBtnEl.addEventListener("click", function (event) {
-    event.preventDefault();
-    const searchTerm = restoLocatorSearchInputEl.value;
-    // Check if global latitude and longitude have been changed with new values
-    getCurWeather(null, searchTerm);
-    // displayresto(null, searchTerm);
-
-});
-
 function convertDate(epoch) {
     // function to convert unix epoch to local time
     // returns arr ["MM/DD/YYYY, HH:MM:SS AM", "MM/DD/YYYY", "HH:MM:SS AM"]
@@ -85,10 +80,10 @@ function convertDate(epoch) {
     readable[1] = ((myDate.toLocaleString().split(", "))[0]);
     readable[2] = ((myDate.toLocaleString().split(", "))[1]);
 
-
     return readable;
 }
 
+// Function that checks if user want to search by zip code or query string
 function getSearchMethod(searchStr) {
     let searchMethod;
     if (searchStr.length === 5 && parseInt(searchStr) + '' === searchStr) {
@@ -120,7 +115,8 @@ function getCurWeather(coord, searchTerm) {
     })
         .then(function (response) {
             console.log("Weather data: ", response);
-            console.log("Weather Coord data: ", response.coord);
+
+            // Get resto data from Zomato API server based on the coordinates received
             displayresto(response.coord);
             weatherObj = {
                 city: `${response.name}`,
@@ -176,8 +172,6 @@ function drawCurWeather(cur) {
 
     $cardTitle.append($ul);
     $('#weather').append($cardTitle);
-
-
 };
 
 // Function that pulls resto data from Zomato API based on the coordinates
@@ -227,13 +221,7 @@ function displayresto(coord) {
             });
         });
         $("#food-info").html(html);
-    }); // end of request for getting data to API server
-}// end of function
-
-/*
-
-
-
-*/
+    });
+}
 
 
