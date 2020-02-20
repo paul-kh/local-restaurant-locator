@@ -7,7 +7,7 @@ userInputEl.focus();
 
 // EXECUTE autoComplete() & getCurrentLocation() WHEN PAGE LOADS =====================================================================
 autoComplete(userInputEl);
-getCurrentLocation();
+// getCurrentLocation();
 
 // MAKE AUTOCOMPLETE ON SEARCH BOX AND GET LATITUDE & LONGITUDE OF THE SELECTED LOCATION ================================================
 function autoComplete(inputEl) {
@@ -19,86 +19,52 @@ function autoComplete(inputEl) {
     // Add event listener of 'Key Stroke / place_change' to the search box
     google.maps.event.addListener(places, 'place_changed', function () {
         const selectedPlace = places.getPlace();
-        // Change global variables with the found lat & lng
-        latitude = selectedPlace.geometry.location.lat();
-        longitude = selectedPlace.geometry.location.lng();
         autoComCoord.lat = selectedPlace.geometry.location.lat();
         autoComCoord.lon = selectedPlace.geometry.location.lng();
-        console.log("autoComCoord: ", autoComCoord);
+        search(autoComCoord, null, "");
     });
-    return autoComCoord;
 }
 
-// GET USER CURRENT LOCATION AND GET THEIR LOCATION'S LATITUDE & LONGITUDE ===============================================================
-function getCurrentLocation() {
-    const getCurLocCoord = {};
-    // If user allowed access to their current location, update the global lat & lng
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            latitude = position.coords.latitude;
-            longitude = position.coords.longitude;
-            getCurLocCoord.lat = position.coords.longitude;
-            getCurLocCoord.lon = position.coords.longitude;
-            console.log("getCurLocCoord: ", getCurLocCoord);
-            displayresto();
-            getCurWeather();
-        }, function (error) { // Handle error
-            switch (error.code) {
-                case error.PERMISSION_DENIED: // User denied the access to their location
-                    break;
-                case error.POSITION_UNAVAILABLE: // Browser doesn't support location service
-                    alert("Location information is unavailable.");
-                    break;
-                case error.TIMEOUT: // User has not responded to request for access to their location
-                    alert("The request to get user location timed out.");
-                    break;
-                case error.UNKNOWN_ERROR: // Other unknown error
-                    alert("An unknown error occurred.");
-                    break;
-            }
-        });
-    } else { return; }
-    return getCurLocCoord;
+function search(autCompleteCoord, userCurLocCoord, searchTerm) {
 
+    // if (userCurLocCoord !== null) {
+    //     getWeather based on getCurLocCoord;
+    //     getCuisine based on getCurLocCoord;
+    //     return
+    // }
+
+    if (autCompleteCoord !== null) {
+        //getWeather based on autoComCoord;
+        getCurWeather(autCompleteCoord, "");
+        //getCuisine based on autoComCoord;
+        displayresto(autCompleteCoord, "");
+        return
+    }
+    // if (searchTerm !== "") {
+    //     getSearchMethod();
+    //     if (method === zip) {
+    //         getWeather based on zip;
+    //         getCuisine based on zip;
+    //     }
+    //     if (method === 'query string') {
+    //         getWeather based on queryString;
+    //         getCuisine based on queryString;
+    //     }
+    //     return
+    // }
 }
 
-/*
-Search.click() {
-    const autoComCoord = autoComplete(inputEl);
-    const getCurLocCoord = getCurrentLocation();
-    const searchTerm = inputEl.value;
-    if (getCurLocCoord) {
-        getWeather based on getCurLocCoord;
-        getCuisine based on getCurLocCoord;
-    }
-    else if (autoComCoord) {
-        getWeather based on autoComCoord;
-        getCuisine based on autoComCoord;
-    }
-    else if (searchTerm !== "") {
-        getSearchMethod();
-        if (method === zip) {
-            getWeather based on zip;
-            getCuisine based on zip;
-        }
-        if (method === 'query string') {
-            getWeather based on queryString;
-            getCuisine based on queryString;
-        }
-    }
-}
 
-*/
 
 // ADD CLICK EVENT TO THE SEARCH BUTTON ==============================================================================================
-searchBtnEl.addEventListener("click", function (event) {
-    event.preventDefault();
-    // Check if global latitude and longitude have been changed with new values
-    console.log("User selected lat: ", latitude, " lng: ", longitude);
-    getCurWeather();
-    displayresto();
+// searchBtnEl.addEventListener("click", function (event) {
+//     event.preventDefault();
+//     // Check if global latitude and longitude have been changed with new values
+//     console.log("User selected lat: ", latitude, " lng: ", longitude);
+//     getCurWeather();
+//     displayresto();
 
-});
+// });
 
 function convertDate(epoch) {
     // function to convert unix epoch to local time
@@ -116,19 +82,21 @@ function convertDate(epoch) {
 
     return readable;
 }
-function getCurWeather() {
+function getCurWeather(coord, searchTerm) {
 
-    // function to get current weather
-    // set queryURL based on type of query
     const apiKey = "166a433c57516f51dfab1f7edaed8413";
-    let requestType = "";
-    let query = "";
-    let url = 'https://api.openweathermap.org/data/2.5/';
-    requestType = 'weather';
-    console.log("latitude-weather:", latitude);
 
-    query = `?lat=${latitude}&lon=${longitude}&units=imperial&appid=${apiKey}`;
-    queryURL = `${url}${requestType}${query}`;
+    let queryURL = "";
+    // query based on coordinates: lat and lon
+    if (searchTerm === "" && coord !== null) {
+        queryURL = `https://api.openweathermap.org/data/2.5/weather?lat=${coord.lat}&lon=${coord.lon}&units=imperial&appid=${apiKey}`;
+    }
+    // query based on zip or city name
+    else if (searchTerm !== "") {
+        // check for search method if zip or city name
+        // update queryURL accordingly
+    }
+    console.log("queryURL: ", queryURL);
     // Create an AJAX call to retrieve data Log the data in console
     $.ajax({
         url: queryURL,
@@ -153,7 +121,7 @@ function getCurWeather() {
 };
 
 function drawCurWeather(cur) {
-    // function to draw  weather for day 
+    // function to draw  weather for day
 
     $('#weather').empty();
     let $cardTitle = $('<h5 class="card-title">');
@@ -193,15 +161,25 @@ function drawCurWeather(cur) {
 
 };
 
-
-//  Create a function to display the restaurant based on city 
-function displayresto() {
+//  Create a function to display the restaurant based on city
+function displayresto(coord, searchTerm) {
     // Define an object 'settings' to store query url to API server
+    let queryURL = "";
+    // query based on coordinates: lat and lon
+    if (searchTerm === "" && coord !== null) {
+        queryURL = `https://developers.zomato.com/api/v2.1/search?lat=${coord.lat}&lon=${coord.lon}&count=100&sort=real_distance&order=asc`;
+    }
+    // query based on zip or city name
+    else if (searchTerm !== "") {
+        // check for search method if zip or city name
+        // update queryURL accordingly
+    }
+    console.log("Resto queryURL: ", queryURL);
+
     let settings = {
         "async": true,
         "crossDomain": true,
-        "url": "https://developers.zomato.com/api/v2.1/search?lat=" +
-            latitude + "&lon=" + longitude + "&count=100&sort=real_distance&order=asc",
+        "url": queryURL,
         "method": "GET", // use Get method
         "headers": {
             "user-key": "91ed3953ab67d3bc31054f6a0ee5a372",
@@ -244,10 +222,41 @@ function displayresto() {
     }); // end of request for getting data to API server
 }// end of function
 
+/*
 
+// GET USER CURRENT LOCATION AND GET THEIR LOCATION'S LATITUDE & LONGITUDE ===============================================================
+function getCurrentLocation() {
+    const getCurLocCoord = {};
+    // If user allowed access to their current location, update the global lat & lng
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function (position) {
+            latitude = position.coords.latitude;
+            longitude = position.coords.longitude;
+            getCurLocCoord.lat = position.coords.longitude;
+            getCurLocCoord.lon = position.coords.longitude;
+            console.log("getCurLocCoord: ", getCurLocCoord);
+            displayresto();
+            getCurWeather();
+        }, function (error) { // Handle error
+            switch (error.code) {
+                case error.PERMISSION_DENIED: // User denied the access to their location
+                    break;
+                case error.POSITION_UNAVAILABLE: // Browser doesn't support location service
+                    alert("Location information is unavailable.");
+                    break;
+                case error.TIMEOUT: // User has not responded to request for access to their location
+                    alert("The request to get user location timed out.");
+                    break;
+                case error.UNKNOWN_ERROR: // Other unknown error
+                    alert("An unknown error occurred.");
+                    break;
+            }
+        });
+    } else { return; }
+    return getCurLocCoord;
 
+}
 
-
-
+*/
 
 
