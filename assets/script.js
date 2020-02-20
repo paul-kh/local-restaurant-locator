@@ -128,6 +128,7 @@ function getCurWeather(coord, searchTerm) {
             displayresto(response.coord);
             weatherObj = {
                 city: `${response.name}`,
+                country: `${response.sys.country}`,
                 wind: response.wind.speed,
                 humidity: response.main.humidity,
                 temp: response.main.temp,
@@ -148,7 +149,7 @@ function renderCurrentWeather(cur) {
 
     $('#weather').empty();
     const $cardTitle = $('<h5 class="card-title">');
-    $cardTitle.text(cur.city + " (" + cur.date + ")");
+    $cardTitle.text(cur.city + ", " + cur.country + " (" + cur.date + ")");
 
     const $ul = $('<ul>');
     const $iconLi = $('<li>');
