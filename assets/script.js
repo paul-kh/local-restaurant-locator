@@ -56,6 +56,7 @@ function getCurrentLocation() {
             console.log("getCurLocCoord: ", getCurLocCoord);
             // get weather data from API server based on the coordinates received
             getCurWeather(getCurLocCoord, "");
+            restoLocatorSearchInputEl.focus();
         }, function (error) { // Handle error
             switch (error.code) {
                 case error.PERMISSION_DENIED: // User denied the access to their location
@@ -72,7 +73,7 @@ function getCurrentLocation() {
             }
         });
     }
-    restoLocatorSearchInputEl.focus();
+
 }
 
 // Function that converts unix epoch to local time.
