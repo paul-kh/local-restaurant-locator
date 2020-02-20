@@ -27,6 +27,7 @@ autoComplete(restoLocatorSearchInputEl);
 getCurrentLocation();
 restoLocatorSearchInputEl.focus();
 
+
 // Function that allows auto complete feature by using Google Places API
 function autoComplete(inputEl) {
     const autoComCoord = {};
@@ -141,6 +142,7 @@ function getCurWeather(coord, searchTerm) {
 
             // calls function to draw result to page
             renderCurrentWeather(weatherObj);
+            restoLocatorSearchInputEl.focus();
 
         })
         .catch(err => console.log("AJAX Error: ", err));
