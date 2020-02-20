@@ -1,15 +1,10 @@
+// Make names of global variables to be most likely unique to prevent accident if window object
+// in other app on the same machine would access to the same variable name.
 const restoLocatorSearchBtnEl = document.getElementById("search-btn");
 const restoLocatorSearchInputEl = document.getElementById("search-term");
 restoLocatorSearchInputEl.focus();
-// Trigger Button Click on Enter key press in the search input
-restoLocatorSearchInputEl.addEventListener("keyup", function (event) {
-    if (event.keyCode === 13) {
-        event.preventDefault();
-        restoLocatorSearchBtnEl.click();
-    }
-});
 
-// ADD CLICK EVENT TO THE SEARCH BUTTON ==============================================================================================
+// Add click event to the search button
 restoLocatorSearchBtnEl.addEventListener("click", function (event) {
     event.preventDefault();
     const searchTerm = restoLocatorSearchInputEl.value;
@@ -17,11 +12,21 @@ restoLocatorSearchBtnEl.addEventListener("click", function (event) {
     getCurWeather(null, searchTerm);
 });
 
-// EXECUTE autoComplete() & getCurrentLocation() WHEN PAGE LOADS =====================================================================
+// Trigger click event when the 'Enter' key pressed in the search input
+restoLocatorSearchInputEl.addEventListener("keyup", function (event) {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        restoLocatorSearchBtnEl.click();
+    }
+});
+
+// Execut autoComplete() & getCurrentLocation() on page load
+// so the autoComplete feature is immediately available
+// and the app is instantly asking user to get the currently location
 autoComplete(restoLocatorSearchInputEl);
 getCurrentLocation();
 
-// MAKE AUTOCOMPLETE ON SEARCH BOX AND GET LATITUDE & LONGITUDE OF THE SELECTED LOCATION ================================================
+// Function that allows auto complete feature by using Google Places API
 function autoComplete(inputEl) {
     const autoComCoord = {};
     // Create new object of Google places with the type of 'geocode'
@@ -38,10 +43,11 @@ function autoComplete(inputEl) {
     });
 }
 
-// GET USER CURRENT LOCATION AND GET THEIR LOCATION'S LATITUDE & LONGITUDE ===============================================================
+// Function that gets user's current location
+// After received location/coordinates (lat & long),
+// pass coordinates to get Weather info from Open Weather API server
 function getCurrentLocation() {
     const getCurLocCoord = {};
-    // If user allowed access to their current location, update the global lat & lng
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
             getCurLocCoord.lat = position.coords.latitude;
@@ -67,10 +73,9 @@ function getCurrentLocation() {
     } else { return; }
 }
 
+// Function that converts unix epoch to local time.
+// It returns array ["MM/DD/YYYY, HH:MM:SS AM", "MM/DD/YYYY", "HH:MM:SS AM"]
 function convertDate(epoch) {
-    // function to convert unix epoch to local time
-    // returns arr ["MM/DD/YYYY, HH:MM:SS AM", "MM/DD/YYYY", "HH:MM:SS AM"]
-
     let readable = [];
     let myDate = new Date(epoch * 1000);
 
@@ -95,6 +100,9 @@ function getSearchMethod(searchStr) {
     return searchMethod;
 }
 
+// Function that gets weather info from Open Weather API server
+// It also leverages the received coordinates to pull restaurant data
+// from Zomato API server as well (It calls the function displayResto())
 function getCurWeather(coord, searchTerm) {
     const apiKey = "166a433c57516f51dfab1f7edaed8413";
     let queryURL = "";
@@ -105,7 +113,6 @@ function getCurWeather(coord, searchTerm) {
     // query based on zip or city name
     else if (searchTerm !== "") {
         queryURL = `https://api.openweathermap.org/data/2.5/weather?${getSearchMethod(searchTerm)}=${searchTerm}&units=imperial&appid=${apiKey}`;
-        console.log("Search Method: ", getSearchMethod(searchTerm));
     }
     console.log("queryURL: ", queryURL);
     // Create an AJAX call to retrieve data Log the data in console
@@ -129,36 +136,34 @@ function getCurWeather(coord, searchTerm) {
             }
 
             // calls function to draw result to page
-            drawCurWeather(weatherObj);
+            renderCurrentWeather(weatherObj);
 
         })
         .catch(err => console.log("AJAX Error: ", err));
 };
 
-function drawCurWeather(cur) {
-    // function to draw  weather for day
+// Function to render weather data
+function renderCurrentWeather(cur) {
 
     $('#weather').empty();
-    let $cardTitle = $('<h5 class="card-title">');
+    const $cardTitle = $('<h5 class="card-title">');
     $cardTitle.text(cur.city + " (" + cur.date + ")");
 
-
-    let $ul = $('<ul>');
-
-    let $iconLi = $('<li>');
-    let $iconI = $('<img>');
+    const $ul = $('<ul>');
+    const $iconLi = $('<li>');
+    const $iconI = $('<img>');
     $iconI.attr('src', cur.icon);
 
-    let $weathLi = $('<li>');
+    const $weathLi = $('<li>');
     $weathLi.text(cur.weather);
 
-    let $temp = $('<li>');
+    const $temp = $('<li>');
     $temp.text('Temp: ' + cur.temp + " F");
 
-    let $curWind = $('<li>');
+    const $curWind = $('<li>');
     $curWind.text('Windspeed: ' + cur.wind + " MPH");
 
-    let $humLi = $('<li>');
+    const $humLi = $('<li>');
     $humLi.text('Humidity: ' + cur.humidity + "%");
 
     // assemble element
@@ -180,30 +185,30 @@ function displayresto(coord) {
     const queryURL = `https://developers.zomato.com/api/v2.1/search?lat=${coord.lat}&lon=${coord.lon}&count=100&sort=real_distance&order=asc`;
     console.log("Resto queryURL: ", queryURL);
 
-    let settings = {
+    const settings = {
         "async": true,
         "crossDomain": true,
         "url": queryURL,
-        "method": "GET", // use Get method
+        "method": "GET",
         "headers": {
             "user-key": "91ed3953ab67d3bc31054f6a0ee5a372",
-            'Content-Type': 'application/x-www-form-urlencoded' // Return in JSON format
+            'Content-Type': 'application/x-www-form-urlencoded'
         }
     }
-    $.getJSON(settings, function (datares) { // make a request to API server
-        console.log(datares);
-        datares = datares.restaurants;
-        console.log("Resto data returned from server: ", datares);
+    $.getJSON(settings, function (response) {
+
+        restoData = response.restaurants;
+        console.log("Resto data returned from server: ", restoData);
         let html = "";
         // loop through the returned data
-        $.each(datares, function (index, value) {
+        $.each(restoData, function (index, value) {
             // define an object to store resto data
-            let restoObj = datares[index];
+            const restoObj = restoData[index];
             $.each(restoObj, function (index, value) {
                 // Show only restaurant that has picture
                 if (value.thumb != "") {
-                    let location = restoObj.restaurant.location;
-                    let userRating = restoObj.restaurant.user_rating;
+                    const location = restoObj.restaurant.location;
+                    const userRating = restoObj.restaurant.user_rating;
                     html += "<div class='data is-clearfix '>";
                     html += "<div class='rating '>";
 
