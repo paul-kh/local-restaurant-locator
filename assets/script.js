@@ -1,14 +1,17 @@
 // GLOBAL VARIABLES =====================================================================================================================
-// Define goble variable for latitude and longitude
 let latitude = "";
 let longitude = "";
-// Define global variable for search input element
+const searchBtnEl = document.getElementById("search-btn");
 const userInputEl = document.getElementById("search-term");
 userInputEl.focus();
-// Define global variable for search button element
-const searchBtnEl = document.getElementById("search-btn");
+
+// EXECUTE autoComplete() & getCurrentLocation() WHEN PAGE LOADS =====================================================================
+autoComplete(userInputEl);
+getCurrentLocation();
+
 // MAKE AUTOCOMPLETE ON SEARCH BOX AND GET LATITUDE & LONGITUDE OF THE SELECTED LOCATION ================================================
 function autoComplete(inputEl) {
+    const autoComCoord = {};
     // Create new object of Google places with the type of 'geocode'
     const places = new google.maps.places.Autocomplete(inputEl, { types: ['geocode'] });
     console.log("Google Places object: ", places);
@@ -19,19 +22,24 @@ function autoComplete(inputEl) {
         // Change global variables with the found lat & lng
         latitude = selectedPlace.geometry.location.lat();
         longitude = selectedPlace.geometry.location.lng();
+        autoComCoord.lat = selectedPlace.geometry.location.lat();
+        autoComCoord.lon = selectedPlace.geometry.location.lng();
+        console.log("autoComCoord: ", autoComCoord);
     });
+    return autoComCoord;
 }
 
 // GET USER CURRENT LOCATION AND GET THEIR LOCATION'S LATITUDE & LONGITUDE ===============================================================
 function getCurrentLocation() {
-
+    const getCurLocCoord = {};
     // If user allowed access to their current location, update the global lat & lng
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function (position) {
             latitude = position.coords.latitude;
             longitude = position.coords.longitude;
-
-            console.log("User's current lat & lon: ", latitude, ", ", longitude);
+            getCurLocCoord.lat = position.coords.longitude;
+            getCurLocCoord.lon = position.coords.longitude;
+            console.log("getCurLocCoord: ", getCurLocCoord);
             displayresto();
             getCurWeather();
         }, function (error) { // Handle error
@@ -50,11 +58,37 @@ function getCurrentLocation() {
             }
         });
     } else { return; }
+    return getCurLocCoord;
+
 }
 
-// EXECUTE autoComplete() & getCurrentLocation() WHEN PAGE LOADS =====================================================================
-autoComplete(userInputEl);
-getCurrentLocation();
+/*
+Search.click() {
+    const autoComCoord = autoComplete(inputEl);
+    const getCurLocCoord = getCurrentLocation();
+    const searchTerm = inputEl.value;
+    if (getCurLocCoord) {
+        getWeather based on getCurLocCoord;
+        getCuisine based on getCurLocCoord;
+    }
+    else if (autoComCoord) {
+        getWeather based on autoComCoord;
+        getCuisine based on autoComCoord;
+    }
+    else if (searchTerm !== "") {
+        getSearchMethod();
+        if (method === zip) {
+            getWeather based on zip;
+            getCuisine based on zip;
+        }
+        if (method === 'query string') {
+            getWeather based on queryString;
+            getCuisine based on queryString;
+        }
+    }
+}
+
+*/
 
 // ADD CLICK EVENT TO THE SEARCH BUTTON ==============================================================================================
 searchBtnEl.addEventListener("click", function (event) {
