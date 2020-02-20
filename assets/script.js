@@ -2,7 +2,6 @@
 // in other app on the same machine would access to the same variable name.
 const restoLocatorSearchBtnEl = document.getElementById("search-btn");
 const restoLocatorSearchInputEl = document.getElementById("search-term");
-restoLocatorSearchInputEl.focus();
 
 // Add click event to the search button
 restoLocatorSearchBtnEl.addEventListener("click", function (event) {
@@ -26,6 +25,7 @@ restoLocatorSearchInputEl.addEventListener("keyup", function (event) {
 // and the app is instantly asking user to get the currently location
 autoComplete(restoLocatorSearchInputEl);
 getCurrentLocation();
+restoLocatorSearchInputEl.focus();
 
 // Function that allows auto complete feature by using Google Places API
 function autoComplete(inputEl) {
@@ -56,7 +56,7 @@ function getCurrentLocation() {
             console.log("getCurLocCoord: ", getCurLocCoord);
             // get weather data from API server based on the coordinates received
             getCurWeather(getCurLocCoord, "");
-            restoLocatorSearchInputEl.focus();
+            // restoLocatorSearchInputEl.focus();
         }, function (error) { // Handle error
             switch (error.code) {
                 case error.PERMISSION_DENIED: // User denied the access to their location
