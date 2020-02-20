@@ -4,6 +4,13 @@ let longitude = "";
 const restoLocatorSearchBtnEl = document.getElementById("search-btn");
 const restoLocatorSearchInputEl = document.getElementById("search-term");
 restoLocatorSearchInputEl.focus();
+// Trigger Button Click on Enter in the search input
+restoLocatorSearchInputEl.addEventListener("keyup", function (event) {
+    if (event.keyCode === 13) {
+        event.preventDefault();
+        restoLocatorSearchBtnEl.click();
+    }
+});
 
 // EXECUTE autoComplete() & getCurrentLocation() WHEN PAGE LOADS =====================================================================
 autoComplete(restoLocatorSearchInputEl);
